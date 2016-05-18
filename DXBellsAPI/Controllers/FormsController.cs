@@ -10,13 +10,17 @@ using Microsoft.Azure.Devices.Client;
 using Newtonsoft.Json;
 using System.Text;
 using System.Diagnostics;
+using Newtonsoft.Json.Linq;
 
 namespace DXBellsAPI.Controllers
 {
+
     public class FormsController : ApiController
     {
+        dynamic form = new JObject();
+
         //public const string hubURL = "https://dxbellhub.azure-devices.net/devices/{deviceId}/messages/events?api-version={api-version}";
-       // private DeviceClient deviceClient = DeviceClient.CreateFromConnectionString("HostName=dxbellhub.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=NKNjKSZGc+fSd1WOD12Xnrtel+n6CFW+TpGgAis5s9E=");
+        private DeviceClient deviceClient = DeviceClient.CreateFromConnectionString("HostName=dxbellhub.azure-devices.net;DeviceId=NatePC;SharedAccessKey=WBL+Rx8wthxVVC8HatTzal45vrOzC8YpUowI/7/Yyo8=");
         // GET api/forms
         [SwaggerOperation("GetAll")]
         public string Get()
@@ -36,9 +40,28 @@ namespace DXBellsAPI.Controllers
         // POST api/forms
         [SwaggerOperation("Create")]
         [SwaggerResponse(HttpStatusCode.Created)]
-        public void Post([FromBody]string value)
+        public async void Post([FromBody]string value)
         {
-          //  SendMessage(value);
+            form.ID = 0;
+            form.Submitter = "Nate Rose";
+            form.Description = value;
+            form.Melody = "10010101010010101101101101011001101010110";
+            form.TimeStamp = DateTime.Now;
+
+            // Send message to DX Bell IoT Hub using IoT Hub SDK
+
+            var contentmessage = JsonConvert.SerializeObject(form);
+            try
+            {
+                var content = new Message(Encoding.UTF8.GetBytes(contentmessage));
+                await deviceClient.SendEventAsync(content);
+
+                Debug.WriteLine("Message Sent: {0}", value, null);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Exception when sending message:" + e.Message);
+            }
         }
 
         // PUT api/forms/5
@@ -57,25 +80,5 @@ namespace DXBellsAPI.Controllers
         {
         }
 
-        //Send Message to IoT Hub
-        [SwaggerOperation("SendMessage")]
-        [SwaggerResponse(HttpStatusCode.OK)]
-        public void SendMessage(string message)
-        {
-           // HttpWebRequest POSTRequest = (HttpWebRequest)WebRequest.Create(hubURL);
-            // Send message to DX Bell IoT Hub using IoT Hub SDK
-            try
-            {
-                var content = new Message(Encoding.UTF8.GetBytes(""));
-                //await deviceClient.SendEventAsync(content);
-
-                Debug.WriteLine("Message Sent: {0}", message, null);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Exception when sending message:" + e.Message);
-            }
-
-        }
     }
 }
