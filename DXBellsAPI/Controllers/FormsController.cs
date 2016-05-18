@@ -12,6 +12,8 @@ using System.Text;
 using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 
+using DXBellsAPI.Models;
+
 namespace DXBellsAPI.Controllers
 {
 
@@ -40,23 +42,17 @@ namespace DXBellsAPI.Controllers
         // POST api/forms
         [SwaggerOperation("Create")]
         [SwaggerResponse(HttpStatusCode.Created)]
-        public async void Post([FromBody]string value)
+        public async void Post([FromBody] BellForm formValues)
         {
-            form.ID = 0;
-            form.Submitter = "Nate Rose";
-            form.Description = value;
-            form.Melody = "10010101010010101101101101011001101010110";
-            form.TimeStamp = DateTime.Now;
+                        // Send message to DX Bell IoT Hub using IoT Hub SDK
 
-            // Send message to DX Bell IoT Hub using IoT Hub SDK
-
-            var contentmessage = JsonConvert.SerializeObject(form);
+            var contentmessage = JsonConvert.SerializeObject(formValues);
             try
             {
                 var content = new Message(Encoding.UTF8.GetBytes(contentmessage));
                 await deviceClient.SendEventAsync(content);
 
-                Debug.WriteLine("Message Sent: {0}", value, null);
+                Debug.WriteLine("Message Sent: {0}", formValues.Description, null);
             }
             catch (Exception e)
             {
