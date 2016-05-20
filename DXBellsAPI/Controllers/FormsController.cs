@@ -19,7 +19,7 @@ namespace DXBellsAPI.Controllers
 
     public class FormsController : ApiController
     {
-        dynamic form = new JObject();
+        //dynamic form = new JObject();
 
         //public const string hubURL = "https://dxbellhub.azure-devices.net/devices/{deviceId}/messages/events?api-version={api-version}";
         private DeviceClient deviceClient = DeviceClient.CreateFromConnectionString("HostName=dxbellhub.azure-devices.net;DeviceId=NatePC;SharedAccessKey=WBL+Rx8wthxVVC8HatTzal45vrOzC8YpUowI/7/Yyo8=");
@@ -44,7 +44,7 @@ namespace DXBellsAPI.Controllers
         [SwaggerResponse(HttpStatusCode.Created)]
         public async void Post([FromBody] BellForm formValues)
         {
-                        // Send message to DX Bell IoT Hub using IoT Hub SDK
+             // Send message to DX Bell IoT Hub using IoT Hub SDK
 
             var contentmessage = JsonConvert.SerializeObject(formValues);
             try
